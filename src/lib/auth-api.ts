@@ -1,4 +1,5 @@
-type Env = { DB?: D1Database; RESEND_API_KEY?: string; AUTH_PEPPER?: string; APP_ORIGIN?: string; RESEND_FROM?: string }
+export type AuthEnv = { DB?: D1Database; RESEND_API_KEY?: string; AUTH_PEPPER?: string; APP_ORIGIN?: string; RESEND_FROM?: string }
+type Env = AuthEnv
 type D1Database = { prepare(sql: string): { bind(...values: unknown[]): { first<T>(): Promise<T | null>; run(): Promise<unknown> } } }
 const json = (data: unknown, status = 200, headers?: HeadersInit) => Response.json(data, headers ? { status, headers } : { status })
 const digits = (value: string) => value.replace(/[০-৯]/g, d => String("০১২৩৪৫৬৭৮৯".indexOf(d)))
@@ -21,8 +22,11 @@ async function verifyPassword(password: string, stored: string, pepper: string) 
 function validEnv(env: Env): env is Env & { DB: D1Database; RESEND_API_KEY: string; AUTH_PEPPER: string; RESEND_FROM: string } {
   return !!(env.DB && env.RESEND_API_KEY && env.AUTH_PEPPER && env.RESEND_FROM)
 }
+function missingEnv(env: Env) {
+  return [!env.DB && "D1 binding DB", !env.RESEND_API_KEY && "secret RESEND_API_KEY", !env.AUTH_PEPPER && "secret AUTH_PEPPER", !env.RESEND_FROM && "variable RESEND_FROM"].filter(Boolean)
+}
 async function sendCode(request: Request, env: Env) {
-  if (!validEnv(env)) return json({ error: "Auth service is not configured" }, 503)
+  if (!validEnv(env)) return json({ error: `Auth service missing: ${missingEnv(env).join(", ")}` }, 503)
   const body = await request.json() as { email?: string }
   const email = body.email?.trim().toLowerCase() ?? ""
   if (!emailPattern.test(email) || email.length > 255) return json({ error: "Invalid email" }, 400)
@@ -39,7 +43,7 @@ async function sendCode(request: Request, env: Env) {
   return json({ ok: true })
 }
 async function signup(request: Request, env: Env) {
-  if (!validEnv(env)) return json({ error: "Auth service is not configured" }, 503)
+  if (!validEnv(env)) return json({ error: `Auth service missing: ${missingEnv(env).join(", ")}` }, 503)
   const b = await request.json() as { name?:string; phone?:string; email?:string; password?:string; confirmPassword?:string; code?:string; referralCode?:string }
   const name = b.name?.trim() ?? "", phone = digits(b.phone ?? "").replace(/^0/, ""), email = b.email?.trim().toLowerCase() ?? "", password = b.password ?? ""
   if (!/^[\u0980-\u09FF\s.'’-]{2,100}$/.test(name) || !/[\u0980-\u09FF]/.test(name)) return json({ error: "Enter your full name in Bangla" }, 400)
@@ -58,7 +62,7 @@ async function signup(request: Request, env: Env) {
   return sessionResponse(env, userId)
 }
 async function signin(request: Request, env: Env) {
-  if (!validEnv(env)) return json({ error: "Auth service is not configured" }, 503)
+  if (!validEnv(env)) return json({ error: `Auth service missing: ${missingEnv(env).join(", ")}` }, 503)
   const b = await request.json() as { identifier?:string; password?:string }
   const identifier = b.identifier?.trim() ?? ""
   if (!identifier || !b.password || b.password.length > 128) return json({ error: "Invalid credentials" }, 400)

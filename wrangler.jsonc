@@ -23,4 +23,8 @@
 			"migrations_dir": "migrations"
 		}
 	]
+	,"vars": {
+		"APP_ORIGIN": "https://bridge-wallet-ledger-main.hasan-404-dev.workers.dev",
+		"RESEND_FROM": "Bridge Wallet <no-reply@rakibulhasan.live>"
+	}
 }
