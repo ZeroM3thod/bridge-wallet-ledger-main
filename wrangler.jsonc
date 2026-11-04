@@ -1,0 +1,26 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "bridge-wallet-ledger",
+	"main": ".output/server/index.mjs",
+	"compatibility_date": "2026-11-04",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"assets": {
+		"directory": ".output/public",
+		"binding": "ASSETS",
+		"not_found_handling": "none"
+	},
+	  "vars": {
+    "APP_ORIGIN": "https://bridge-wallet-ledger-main.hasan-404-dev.workers.dev",
+    "RESEND_FROM": "Test <no-reply@rakibulhasan.live>"
+  },
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "bridge-wallet-db",
+			"database_id": "b07980a9-c0f2-4da4-aa17-7bbc8a769f99",
+			"migrations_dir": "migrations"
+		}
+	]
+}

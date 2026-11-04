@@ -3,7 +3,7 @@ import { AppLink } from "@/components/app/AppLink"
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const phoneRe = /^0?1\d{9}$/
-const toBanglaDigits = (value: string) => value.replace(/[0-9]/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)])
+const toBanglaDigits = (value: string) => value.replace(/[0-9]/g, (digit) => "০১২৩৪৫৬৭۸৯"[Number(digit)] ?? digit)
 const toEnglishDigits = (value: string) => value.replace(/[০-৯]/g, (digit) => String("০১২৩৪৫৬৭৮৯".indexOf(digit)))
 const isBanglaName = (value: string) => /^[\u0980-\u09FF\s.'’-]+$/.test(value.trim()) && /[\u0980-\u09FF]/.test(value)
 const sv = { width: 21, height: 21, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const }
@@ -59,11 +59,16 @@ export function SignupPage() {
   useEffect(() => { if (timer <= 0) return; const t = setTimeout(() => setTimer(timer - 1), 1000); return () => clearTimeout(t) }, [timer])
   const fail = (k: string, text: string) => { setBad(k); setMsg({ text, ok: false }) }
   const level = !f.pw ? 0 : Math.max(1, (f.pw.length >= 6 ? 1 : 0) + (/[A-Za-z]/.test(f.pw) && /\d/.test(f.pw) ? 1 : 0) + (f.pw.length >= 10 && /[^A-Za-z0-9]/.test(f.pw) ? 1 : 0))
-  const sendCode = () => {
+  const sendCode = async () => {
     if (!emailRe.test(f.email.trim())) return fail("email", "সঠিক ইমেইল ঠিকানা দিন")
-    setBad("email"); setMsg({ text: "ইমেইল পাঠানোর সার্ভার এখনো কনফিগার করা হয়নি", ok: false })
+    try {
+      const response = await fetch("/api/auth/send-code", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: f.email.trim() }) })
+      const data = await response.json()
+      if (!response.ok) return fail("email", data.error ?? "কোড পাঠানো যায়নি")
+      setBad(""); setSentTo(f.email.trim()); setTimer(60); setMsg({ text: "ইমেইলে যাচাইকরণ কোড পাঠানো হয়েছে", ok: true })
+    } catch { fail("email", "সার্ভারের সঙ্গে সংযোগ করা যায়নি") }
   }
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isBanglaName(f.name)) return fail("name", "বাংলায় পূর্ণ নাম লিখুন")
     if (!phoneRe.test(toEnglishDigits(f.phone.trim()))) return fail("phone", "সঠিক ফোন নম্বর দিন")
@@ -71,7 +76,12 @@ export function SignupPage() {
     if (!/^\d{6}$/.test(toEnglishDigits(f.otp.trim()))) return fail("otp", "ইমেইলে পাঠানো ৬ সংখ্যার কোড দিন")
     if (f.pw.length < 6) return fail("pw", "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে")
     if (f.pw2 !== f.pw) return fail("pw2", "পাসওয়ার্ড নিশ্চিতকরণ মিলছে না")
-    return fail("otp", "অ্যাকাউন্ট তৈরি করতে সার্ভার কনফিগারেশন প্রয়োজন")
+    try {
+      const response = await fetch("/api/auth/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name:f.name, phone:f.phone, email:f.email, code:toEnglishDigits(f.otp), password:f.pw, confirmPassword:f.pw2, referralCode:f.invite }) })
+      const data = await response.json()
+      if (!response.ok) return fail("otp", data.error ?? "নিবন্ধন করা যায়নি")
+      window.location.assign("/")
+    } catch { fail("otp", "সার্ভারের সঙ্গে সংযোগ করা যায়নি") }
   }
   return (
     <Shell title="নিবন্ধন" sub="নতুন অ্যাকাউন্ট তৈরি করুন">
@@ -102,12 +112,17 @@ export function SigninPage() {
   const [bad, setBad] = useState("")
   const [msg, setMsg] = useState({ text: "", ok: false })
   const fail = (k: string, text: string) => { setBad(k); setMsg({ text, ok: false }) }
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     const v = id.trim()
     if (!emailRe.test(v) && !phoneRe.test(toEnglishDigits(v))) return fail("id", "সঠিক ইমেইল বা ফোন নম্বর দিন")
     if (!pw) return fail("pw", "পাসওয়ার্ড দিন")
-    setBad("id"); setMsg({ text: "লগইন পরিষেবা সার্ভার কনফিগারেশনের অপেক্ষায়", ok: false })
+    try {
+      const response = await fetch("/api/auth/signin", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier:v, password:pw }) })
+      const data = await response.json()
+      if (!response.ok) return fail("id", data.error ?? "লগইন করা যায়নি")
+      window.location.assign("/")
+    } catch { fail("id", "সার্ভারের সঙ্গে সংযোগ করা যায়নি") }
   }
   return (
     <Shell title="লগইন" sub="আপনার অ্যাকাউন্টে প্রবেশ করুন">
