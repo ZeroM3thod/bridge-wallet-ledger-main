@@ -1,0 +1,2 @@
+export const pagePaths = {"home": "/", "work": "/work", "earn": "/earn", "team": "/team", "members": "/team/members", "salary": "/team/salary", "profile": "/profile", "withdraw": "/withdraw", "settings": "/profile/settings", "ledger": "/profile/ledger", "password": "/profile/password", "wpassword": "/profile/withdrawal-password", "profits": "/profile/profits", "download": "/profile/download", "signup": "/signup", "signin": "/signin"} as const
+export type Page = keyof typeof pagePaths

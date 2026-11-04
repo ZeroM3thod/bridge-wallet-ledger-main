@@ -1,0 +1,2 @@
+[{"capability":"code/UI","source":"code archive","outcome":"migrate","status":"verified","next_action":"none"},
+{"capability":"database/auth","source":"none used (design-only preview, client state)","outcome":"not needed","status":"accepted","next_action":"none"}]
