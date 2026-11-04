@@ -12,7 +12,7 @@ async function postAuth(path: string, body: unknown) {
   let data: { error?: string }
   try { data = JSON.parse(text) as { error?: string } }
   catch { throw new Error(`Auth API returned HTTP ${response.status} (not JSON). Check Worker deployment and /api/auth routing.`) }
-  if (!response.ok) throw new Error(data.error ?? `Auth API failed (HTTP ${response.status})`)
+  if (!response.ok) throw new Error([data.error, (data as { detail?: string }).detail].filter(Boolean).join(": ") || `Auth API failed (HTTP ${response.status})`)
   return data
 }
 const sv = { width: 21, height: 21, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const }
