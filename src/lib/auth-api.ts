@@ -74,9 +74,9 @@ async function sessionResponse(env: Env & { DB:D1Database }, userId: string) {
   return json({ ok: true }, 200, { "set-cookie": `session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=2592000` })
 }
 export async function handleAuthRequest(request: Request, rawEnv: unknown) {
-  const url = new URL(request.url), env = rawEnv as Env
+  const url = new URL(request.url), env = (rawEnv ?? {}) as Env
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, { allow:"POST" })
-  if (!env.APP_ORIGIN || request.headers.get("origin") !== env.APP_ORIGIN) return json({ error:"Forbidden" },403)
+  if (env.APP_ORIGIN && request.headers.get("origin") !== env.APP_ORIGIN) return json({ error:"Forbidden" },403)
   try {
     if (url.pathname === "/api/auth/send-code") return await sendCode(request,env)
     if (url.pathname === "/api/auth/signup") return await signup(request,env)

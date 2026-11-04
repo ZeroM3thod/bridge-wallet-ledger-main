@@ -3,9 +3,9 @@
 	"name": "bridge-wallet-ledger",
 	"main": ".output/server/index.mjs",
 	"compatibility_date": "2026-11-04",
-	"compatibility_flags": [
+  "compatibility_flags": [
 		"nodejs_compat"
-	],
+  ],
 	"assets": {
 		"directory": ".output/public",
 		"binding": "ASSETS",

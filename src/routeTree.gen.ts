@@ -25,6 +25,7 @@ import { Route as ProfileSettingsRouteImport } from './routes/profile_.settings'
 import { Route as ProfileWithdrawalPasswordRouteImport } from './routes/profile_.withdrawal-password'
 import { Route as TeamMembersRouteImport } from './routes/team_.members'
 import { Route as TeamSalaryRouteImport } from './routes/team_.salary'
+import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -107,6 +108,11 @@ const TeamSalaryRoute = TeamSalaryRouteImport.update({
   path: '/team/salary',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/profile/withdrawal-password': typeof ProfileWithdrawalPasswordRoute
   '/team/members': typeof TeamMembersRoute
   '/team/salary': typeof TeamSalaryRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/profile/withdrawal-password': typeof ProfileWithdrawalPasswordRoute
   '/team/members': typeof TeamMembersRoute
   '/team/salary': typeof TeamSalaryRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/profile_/withdrawal-password': typeof ProfileWithdrawalPasswordRoute
   '/team_/members': typeof TeamMembersRoute
   '/team_/salary': typeof TeamSalaryRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/profile/withdrawal-password'
     | '/team/members'
     | '/team/salary'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/profile/withdrawal-password'
     | '/team/members'
     | '/team/salary'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/profile_/withdrawal-password'
     | '/team_/members'
     | '/team_/salary'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -237,6 +249,7 @@ export interface RootRouteChildren {
   ProfileWithdrawalPasswordRoute: typeof ProfileWithdrawalPasswordRoute
   TeamMembersRoute: typeof TeamMembersRoute
   TeamSalaryRoute: typeof TeamSalaryRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeamSalaryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -373,6 +393,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileWithdrawalPasswordRoute: ProfileWithdrawalPasswordRoute,
   TeamMembersRoute: TeamMembersRoute,
   TeamSalaryRoute: TeamSalaryRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
