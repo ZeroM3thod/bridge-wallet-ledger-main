@@ -82,5 +82,8 @@ export async function handleAuthRequest(request: Request, rawEnv: unknown) {
     if (url.pathname === "/api/auth/signup") return await signup(request,env)
     if (url.pathname === "/api/auth/signin") return await signin(request,env)
     return json({ error:"Not found" },404)
-  } catch { return json({ error:"Authentication request failed" },500) }
+  } catch (error) {
+    console.error("Auth API failure:", error)
+    return json({ error: "Authentication request failed", detail: error instanceof Error ? error.message : "Unknown server error" },500)
+  }
 }

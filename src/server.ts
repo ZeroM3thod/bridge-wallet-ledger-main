@@ -54,6 +54,9 @@ export default {
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
       console.error(error);
+      if (new URL(request.url).pathname.startsWith("/api/auth/")) {
+        return Response.json({ error: "Authentication server error" }, { status: 500 });
+      }
       return new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
