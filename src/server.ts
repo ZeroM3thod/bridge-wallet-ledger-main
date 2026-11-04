@@ -55,7 +55,7 @@ export default {
     } catch (error) {
       console.error(error);
       if (new URL(request.url).pathname.startsWith("/api/auth/")) {
-        return Response.json({ error: "Authentication server error" }, { status: 500 });
+        return Response.json({ error: "Authentication server error", detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
       }
       return new Response(renderErrorPage(), {
         status: 500,
